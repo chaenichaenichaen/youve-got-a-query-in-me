@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pink Photo Finder</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Pretendard", "Apple SD Gothic Neo", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(255, 205, 232, 0.55), transparent 24%),
+        radial-gradient(circle at 88% 8%, rgba(255, 235, 248, 0.9), transparent 28%),
+        linear-gradient(135deg, #fff8fc 0%, #ffe9f5 45%, #ffd8ed 100%);
+      color: #3a2330;
+      overflow-x: hidden;
+    }
+
+    .sparkle {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 2px),
+        radial-gradient(circle, rgba(255,120,190,0.45) 1px, transparent 2px);
+      background-size: 82px 82px, 132px 132px;
+      animation: twinkle 9s linear infinite;
+      opacity: 0.55;
+      z-index: 0;
+    }
+
+    @keyframes twinkle {
+      from { transform: translateY(0); }
+      to { transform: translateY(-90px); }
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: min(1280px, 92%);
+      margin: 0 auto;
+      padding: 34px 0 60px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 34px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 850;
+      letter-spacing: -0.5px;
+      color: #f0449c;
+      font-size: 23px;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s ease;
+    }
+
+    .logo:hover {
+      transform: translateY(-1px);
+      opacity: 0.88;
+    }
+
+    .logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ff6fb8, #ffc4e3);
+      color: white;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 24px rgba(255, 76, 168, 0.35);
+      font-size: 18px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+    }
+
+    .nav button {
+      border: 1px solid rgba(255, 96, 174, 0.3);
+      background: rgba(255, 255, 255, 0.66);
+      color: #c93182;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 750;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: 0.2s ease;
+    }
+
+    .nav button:hover {
+      background: white;
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      text-align: center;
+      padding: 42px 18px 34px;
+      border-radius: 34px;
+      background: rgba(255, 255, 255, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 24px 60px rgba(255, 88, 170, 0.18);
+      backdrop-filter: blur(18px);
+      margin-bottom: 26px;
+    }
+
+    .hero .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 15px;
+      background: rgba(255,255,255,0.88);
+      color: #e8489b;
+      border: 1px solid rgba(255, 76, 168, 0.22);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 18px rgba(255, 100, 180, 0.12);
+    }
+
+    h1 {
+      font-size: clamp(32px, 5.4vw, 58px);
+      line-height: 1.08;
+      letter-spacing: -2.2px;
+      margin-bottom: 16px;
+      font-weight: 850;
+      color: #3a2330;
+    }
+
+    h1 .soft {
+      display: inline-block;
+      color: #f0449c;
+      background: linear-gradient(90deg, #f0449c, #ff7dbf, #ef4aa0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+
+    h1 .soft::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      right: 4px;
+      bottom: 3px;
+      height: 12px;
+      border-radius: 999px;
+      background: rgba(255, 190, 222, 0.65);
+      z-index: -1;
+    }
+
+    .hero p {
+      color: #895071;
+      font-size: 16px;
+      line-height: 1.65;
+      margin-bottom: 28px;
+    }
+
+    .hero p strong {
+      color: #d83d8f;
+    }
+
+    .search-box {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      height: 62px;
+      border: 2px solid #ffa7d0;
+      border-radius: 999px;
+      padding: 0 138px 0 26px;
+      font-size: 17px;
+      outline: none;
+      color: #4a2637;
+      background: rgba(255,255,255,0.94);
+      box-shadow: 0 14px 30px rgba(255, 76, 168, 0.18);
+    }
+
+    .search-box input::placeholder {
+      color: #c98cac;
+    }
+
+    .search-box button {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      height: 46px;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f0449c, #ff8ac7);
+      color: white;
+      padding: 0 22px;
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(255, 76, 168, 0.28);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.68);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 28px;
+      box-shadow: 0 18px 45px rgba(255, 88, 170, 0.14);
+      backdrop-filter: blur(18px);
+    }
+
+    .albums {
+      padding: 20px;
+      position: sticky;
+      top: 24px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      color: #9f4c76;
+      margin-bottom: 14px;
+      font-weight: 900;
+      letter-spacing: 0.2px;
+    }
+
+    .album-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .album {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(255, 107, 185, 0.22);
+      background: rgba(255,255,255,0.74);
+      border-radius: 20px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: 0.2s;
+      color: #733552;
+      font-weight: 800;
+    }
+
+    .album:hover,
+    .album.active {
+      transform: translateY(-2px);
+      background: #fff1f8;
+      border-color: #ff83c1;
+      color: #e64097;
+      box-shadow: 0 10px 20px rgba(255, 76, 168, 0.13);
+    }
+
+    .album span:last-child {
+      font-size: 12px;
+      background: white;
+      color: #e65ca5;
+      padding: 4px 9px;
+      border-radius: 999px;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .result-head h2 {
+      font-size: 22px;
+      color: #e64097;
+      letter-spacing: -0.6px;
+    }
+
+    .result-meta {
+      color: #9b557a;
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .chip {
+      border: 1px solid rgba(255, 105, 180, 0.24);
+      background: rgba(255,255,255,0.76);
+      color: #c93182;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .chip:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .photo-card {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 16px 36px rgba(255, 76, 168, 0.16);
+      border: 1px solid rgba(255,255,255,0.9);
+      transition: 0.22s ease;
+    }
+
+    .photo-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 46px rgba(255, 76, 168, 0.24);
+    }
+
+    .photo {
+      height: 220px;
+      position: relative;
+      display: grid;
+      place-items: center;
+      font-size: 50px;
+      overflow: hidden;
+    }
+
+    .photo::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(255,255,255,0.65);
+      border-radius: 18px;
+      pointer-events: none;
+    }
+
+    .photo::after {
+      content: "✦";
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      color: rgba(255,255,255,0.9);
+      font-size: 22px;
+      text-shadow: 0 2px 8px rgba(255, 76, 168, 0.45);
+    }
+
+    .p1 { background: linear-gradient(135deg, #ffc1df, #ff7abc); }
+    .p2 { background: linear-gradient(135deg, #ffd6ef, #ff91cf, #ffbddf); }
+    .p3 { background: linear-gradient(135deg, #ffe1f2, #ff9ed2); }
+    .p4 { background: linear-gradient(135deg, #ffb7d8, #ffc8ef); }
+    .p5 { background: linear-gradient(135deg, #ffd2ec, #ff74b8); }
+    .p6 { background: linear-gradient(135deg, #fff1fa, #ff8fcb); }
+    .p7 { background: linear-gradient(135deg, #ffcce7, #ff5ead); }
+    .p8 { background: linear-gradient(135deg, #ffe8f5, #ffa6d5); }
+    .p9 { background: linear-gradient(135deg, #ffb3d7, #ffd7f0); }
+
+    .info {
+      padding: 16px;
+    }
+
+    .info-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .info h3 {
+      font-size: 16px;
+      color: #642b47;
+      letter-spacing: -0.3px;
+    }
+
+    .score {
+      font-size: 12px;
+      color: white;
+      background: #f0449c;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .tags span {
+      font-size: 11px;
+      color: #c93182;
+      background: #fff0f8;
+      border: 1px solid rgba(255, 76, 168, 0.16);
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-weight: 800;
+    }
+
+    .empty {
+      display: none;
+      text-align: center;
+      padding: 70px 20px;
+      color: #9a5278;
+    }
+
+    .empty strong {
+      display: block;
+      color: #e64097;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .albums {
+        position: static;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 580px) {
+      .topbar {
+        align-items: flex-start;
+        gap: 14px;
+        flex-direction: column;
+      }
+
+      .nav {
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .search-box input {
+        padding-right: 24px;
+      }
+
+      .search-box button {
+        position: static;
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sparkle"></div>
+
+  <main class="app">
+    <header class="topbar">
+      <div class="logo" id="logoRefresh">
+        <div class="logo-badge">✦</div>
+        Pink Photo Finder
+      </div>
+
+      <nav class="nav">
+        <button>My Album</button>
+        <button>Favorites</button>
+        <button>Upload</button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="label">High-teen photo archive</div>
+
+      <h1>
+        원하는 순간만<br />
+        <span class="soft">예쁘게 찾아줄게</span>
+      </h1>
+
+      <p>
+        단어 하나로 내 컴퓨터 속 사진을 검색하고,<br />
+        <strong>관련도 높은 사진부터</strong> 깔끔하게 정리해 보여주는 이미지 앨범 목업
+      </p>
+
+      <div class="search-box">
+        <input id="searchInput" type="text" placeholder="예: 핑크, 파티, 친구, 카페, 여행, 강아지" />
+        <button id="searchBtn">Search</button>
+      </div>
+    </section>
+
+    <section class="layout">
+      <aside class="panel albums">
+        <div class="section-title">ALBUMS</div>
+
+        <div class="album-list">
+          <div class="album active" data-album="all">
+            <span>전체 사진</span>
+            <span>12</span>
+          </div>
+          <div class="album" data-album="people">
+            <span>친구 / 인물</span>
+            <span>4</span>
+          </div>
+          <div class="album" data-album="place">
+            <span>장소 / 카페</span>
+            <span>4</span>
+          </div>
+          <div class="album" data-album="party">
+            <span>파티 / 이벤트</span>
+            <span>3</span>
+          </div>
+          <div class="album" data-album="pet">
+            <span>동물</span>
+            <span>1</span>
+          </div>
+        </div>
+      </aside>
+
+      <section class="panel content">
+        <div class="result-head">
+          <h2 id="resultTitle">추천 사진</h2>
+          <div class="result-meta" id="resultMeta">관련도 높은 순으로 정렬됨</div>
+        </div>
+
+        <div class="chips">
+          <button class="chip" data-keyword="핑크">#핑크</button>
+          <button class="chip" data-keyword="친구">#친구</button>
+          <button class="chip" data-keyword="카페">#카페</button>
+          <button class="chip" data-keyword="파티">#파티</button>
+          <button class="chip" data-keyword="여행">#여행</button>
+          <button class="chip" data-keyword="강아지">#강아지</button>
+        </div>
+
+        <div class="grid" id="photoGrid"></div>
+
+        <div class="empty" id="emptyState">
+          <strong>검색 결과가 없어요</strong>
+          다른 단어로 검색하거나 앨범을 전체 사진으로 바꿔보세요.
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const photos = [
+      {
+        title: "Pink Bestie Selfie",
+        emoji: "👯‍♀️",
+        album: "people",
+        color: "p1",
+        tags: ["핑크", "친구", "셀카", "하이틴", "인물", "베스트프렌드"]
+      },
+      {
+        title: "Glitter Party Night",
+        emoji: "🎀",
+        album: "party",
+        color: "p2",
+        tags: ["파티", "반짝", "글리터", "이벤트", "핑크", "드레스"]
+      },
+      {
+        title: "Cafe Ribbon Table",
+        emoji: "☕",
+        album: "place",
+        color: "p3",
+        tags: ["카페", "디저트", "리본", "핑크", "감성", "테이블"]
+      },
+      {
+        title: "Mall Photo Booth",
+        emoji: "📸",
+        album: "people",
+        color: "p4",
+        tags: ["친구", "사진", "포토부스", "하이틴", "인물"]
+      },
+      {
+        title: "Weekend Trip Mood",
+        emoji: "🧳",
+        album: "place",
+        color: "p5",
+        tags: ["여행", "주말", "거리", "풍경", "감성"]
+      },
+      {
+        title: "Pretty Desk Setup",
+        emoji: "💻",
+        album: "place",
+        color: "p6",
+        tags: ["책상", "노트북", "공부", "핑크", "데스크", "작업"]
+      },
+      {
+        title: "Birthday Queen",
+        emoji: "🎂",
+        album: "party",
+        color: "p7",
+        tags: ["생일", "파티", "케이크", "친구", "이벤트", "핑크"]
+      },
+      {
+        title: "Lovely Puppy",
+        emoji: "🐶",
+        album: "pet",
+        color: "p8",
+        tags: ["강아지", "동물", "귀여움", "산책", "펫"]
+      },
+      {
+        title: "Pink Outfit Check",
+        emoji: "👗",
+        album: "people",
+        color: "p9",
+        tags: ["패션", "옷", "핑크", "코디", "인물", "하이틴"]
+      },
+      {
+        title: "Sweet Dessert Shot",
+        emoji: "🍰",
+        album: "place",
+        color: "p1",
+        tags: ["디저트", "카페", "케이크", "핑크", "감성"]
+      },
+      {
+        title: "Sparkle Invitation",
+        emoji: "💌",
+        album: "party",
+        color: "p2",
+        tags: ["초대장", "파티", "반짝", "이벤트", "글리터"]
+      },
+      {
+        title: "School Hallway Mood",
+        emoji: "🎒",
+        album: "people",
+        color: "p3",
+        tags: ["학교", "친구", "하이틴", "복도", "일상"]
+      }
+    ];
+
+    let currentAlbum = "all";
+
+    const logoRefresh = document.getElementById("logoRefresh");
+    const searchInput = document.getElementById("searchInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const photoGrid = document.getElementById("photoGrid");
+    const resultTitle = document.getElementById("resultTitle");
+    const resultMeta = document.getElementById("resultMeta");
+    const emptyState = document.getElementById("emptyState");
+    const albumButtons = document.querySelectorAll(".album");
+    const chips = document.querySelectorAll(".chip");
+
+    logoRefresh.addEventListener("click", () => {
+      window.location.reload();
+    });
+
+    function getRelevanceScore(photo, keyword) {
+      if (!keyword) return 70;
+
+      const q = keyword.toLowerCase().trim();
+      const title = photo.title.toLowerCase();
+      const tags = photo.tags.map(tag => tag.toLowerCase());
+
+      let score = 0;
+
+      if (title.includes(q)) score += 50;
+
+      tags.forEach(tag => {
+        if (tag === q) score += 60;
+        else if (tag.includes(q)) score += 35;
+        else if (q.includes(tag)) score += 25;
+      });
+
+      if (photo.album.includes(q)) score += 20;
+
+      return score;
+    }
+
+    function renderPhotos() {
+      const keyword = searchInput.value.trim();
+
+      const filtered = photos
+        .map(photo => ({
+          ...photo,
+          score: getRelevanceScore(photo, keyword)
+        }))
+        .filter(photo => {
+          const albumMatch = currentAlbum === "all" || photo.album === currentAlbum;
+          const keywordMatch = !keyword || photo.score > 0;
+          return albumMatch && keywordMatch;
+        })
+        .sort((a, b) => b.score - a.score);
+
+      photoGrid.innerHTML = "";
+
+      if (filtered.length === 0) {
+        emptyState.style.display = "block";
+        resultTitle.textContent = `"${keyword}" 검색 결과`;
+        resultMeta.textContent = "0개의 사진";
+        return;
+      }
+
+      emptyState.style.display = "none";
+
+      resultTitle.textContent = keyword ? `"${keyword}" 검색 결과` : "추천 사진";
+      resultMeta.textContent = `${filtered.length}개의 사진 · 관련도 높은 순`;
+
+      filtered.forEach(photo => {
+        const card = document.createElement("article");
+        card.className = "photo-card";
+
+        card.innerHTML = `
+          <div class="photo ${photo.color}">
+            ${photo.emoji}
+          </div>
+
+          <div class="info">
+            <div class="info-top">
+              <h3>${photo.title}</h3>
+              <div class="score">${photo.score}% match</div>
+            </div>
+
+            <div class="tags">
+              ${photo.tags.slice(0, 4).map(tag => `<span>#${tag}</span>`).join("")}
+            </div>
+          </div>
+        `;
+
+        photoGrid.appendChild(card);
+      });
+    }
+
+    searchBtn.addEventListener("click", renderPhotos);
+
+    searchInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") renderPhotos();
+    });
+
+    searchInput.addEventListener("input", renderPhotos);
+
+    albumButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        albumButtons.forEach(item => item.classList.remove("active"));
+        button.classList.add("active");
+        currentAlbum = button.dataset.album;
+        renderPhotos();
+      });
+    });
+
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        searchInput.value = chip.dataset.keyword;
+        renderPhotos();
+      });
+    });
+
+    renderPhotos();
+  </script>
+</body>
+</html>
